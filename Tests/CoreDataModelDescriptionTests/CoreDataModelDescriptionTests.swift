@@ -1,4 +1,5 @@
 import XCTest
+import CoreData
 @testable import CoreDataModelDescription
 
 // MARK: - Core Data Managed Objects
@@ -31,7 +32,7 @@ final class Article: Publication {
 
 // MARK: - Test
 
-@available(OSX 10.13, *)
+@available(iOS 11.0, OSX 10.13, *)
 final class CoreDataModelDescriptionTests: XCTestCase {
 
     func testCoreDataModelDescription() throws {
@@ -104,7 +105,7 @@ final class CoreDataModelDescriptionTests: XCTestCase {
 }
 
 
-@available(OSX 10.12, *)
+@available(iOS 10.0, OSX 10.12, *)
 extension XCTestCase {
 
     func makePersistentContainer(name: String, modelDescription: CoreDataModelDescription) -> NSPersistentContainer {
