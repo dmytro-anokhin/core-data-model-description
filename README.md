@@ -45,6 +45,6 @@ let modelDescription = CoreDataModelDescription(
 let model = modelDescription.makeModel()
 ```
 
-## Article
+## Motivation
 
-This package described in my article [Core Data and Swift Package Manager](https://medium.com/@dmytro.anokhin/core-data-and-swift-package-manager-6ed9ff70921a).
+Motivation and creating this package described in my article [Core Data and Swift Package Manager](https://medium.com/@dmytro.anokhin/core-data-and-swift-package-manager-6ed9ff70921a).
