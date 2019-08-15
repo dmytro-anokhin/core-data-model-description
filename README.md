@@ -16,7 +16,6 @@ let modelDescription = CoreDataModelDescription(
         .entity(
             name: "Author",
             managedObjectClass: Author.self,
-            parentEntity: nil,
             attributes: [
                 .attribute(name: "name", type: .stringAttributeType)
             ],
@@ -26,7 +25,6 @@ let modelDescription = CoreDataModelDescription(
         .entity(
             name: "Publication",
             managedObjectClass: Publication.self,
-            parentEntity: nil,
             attributes: [
                 .attribute(name: "publicationDate", type: .dateAttributeType),
                 .attribute(name: "numberOfViews", type: .integer64AttributeType, isOptional: true)
