@@ -51,6 +51,7 @@ public struct CoreDataModelDescription {
                 relationship.maxCount = relationshipDescription.maxCount
                 relationship.minCount = relationshipDescription.minCount
                 relationship.deleteRule = relationshipDescription.deleteRule
+                relationship.isOptional = relationshipDescription.optional
 
                 let destinationEntity = entityNameToEntity[relationshipDescription.destination]
                 assert(destinationEntity != nil, "Can not find destination entity: '\(relationshipDescription.destination)', in relationship '\(relationshipDescription.name)', for entity: '\(entityDescription.name)'")
