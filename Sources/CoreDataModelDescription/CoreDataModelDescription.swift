@@ -32,9 +32,10 @@ public struct CoreDataModelDescription {
 
             let entity = NSEntityDescription()
             entity.name = entityDescription.name
-            entity.managedObjectClassName = entityDescription.managedObjectClassName
-            entity.properties = entityDescription.attributes.map { $0.makeAttribute() }
-
+            entity.managedObjectClassName = entityDescription.managedObjectClassName 
+            entity.properties = entityDescription.attributes.map { $0.makeAttribute() } + entityDescription.fetchedProperties.map { $0.makeFetchedProperty() }
+            
+            
             return (entityDescription.name, entity)
         })
 
