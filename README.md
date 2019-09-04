@@ -48,3 +48,5 @@ let model = modelDescription.makeModel()
 ## Motivation
 
 Motivation and creating this package described in my article [Core Data and Swift Package Manager](https://medium.com/@dmytro.anokhin/core-data-and-swift-package-manager-6ed9ff70921a).
+
+This package is still on early stage of development. Please submit issues for missing functionality. Pull requests are more than welcome.
