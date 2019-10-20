@@ -38,7 +38,7 @@ final class User: NSManagedObject {
 
 // MARK: - Test
 
-@available(iOS 11.0, OSX 10.13, *)
+@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
 final class CoreDataModelDescriptionTests: XCTestCase {
 
     func testCoreDataModelDescription() throws {
@@ -54,6 +54,9 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                     ],
                     relationships: [
                         .relationship(name: "publications", destination: "Publication", toMany: true, deleteRule: .cascadeDeleteRule, inverse: "author")
+                    ],
+                    indexes: [
+                        .index(name: "byName", elements: [ .property(name: "name") ])
                     ]),
                 .entity(
                     name: "Publication",
@@ -195,7 +198,7 @@ final class CoreDataModelDescriptionTests: XCTestCase {
 }
 
 
-@available(iOS 10.0, OSX 10.12, *)
+@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
 extension XCTestCase {
 
     func makePersistentContainer(name: String, modelDescription: CoreDataModelDescription, configurations: [String]? = nil) -> NSPersistentContainer {

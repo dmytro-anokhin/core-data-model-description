@@ -10,6 +10,7 @@ import CoreData
 
 
 /// Used to create `NSManagedObjectModel`
+@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
 public struct CoreDataModelDescription {
 
     public var entities: [CoreDataEntityDescription]
@@ -21,36 +22,63 @@ public struct CoreDataModelDescription {
     public func makeModel() -> NSManagedObjectModel {
         let model = NSManagedObjectModel()
 
-        // Model creation is split in three steps:
-        // 1. First step creates all entities and their attributes. Entities are mapped to their names for faster lookup. This step also creates configuration name to entities map.
+        // For convenience: the package objects use "Description" suffix, Core Data objects have no suffix.
+        let entitiesDescriptions = self.entities
+        let entities: [NSEntityDescription]
+
+        // Model creation has next steps:
+        // 1. Create entities and their attributes. Entities are mapped to their names for faster lookup. This step also creates configuration name to entities map.
         // 2. Second step creates relationships and establishes parent-child (sub-super entity) connections. This step produces a list of relationships with inverse (and their descriptions).
         // 3. Third step connects inverse relationships.
+        // 4. Last step builds indexes. This must be done in the last step because changing entities hierarchy structurally drops indexes.
 
         // First step
         var entityNameToEntity: [String: NSEntityDescription] = [:]
         var configurationNameToEntities: [String: Array<NSEntityDescription>] = [:]
+        var entityNameToPropertyNameToProperty: [String: [String: NSPropertyDescription]] = [:]
 
-        for entityDescription in entities {
+        for entityDescription in entitiesDescriptions {
             let entity = NSEntityDescription()
             entity.name = entityDescription.name
             entity.managedObjectClassName = entityDescription.managedObjectClassName
-            entity.properties = entityDescription.attributes.map { $0.makeAttribute() } + entityDescription.fetchedProperties.map { $0.makeFetchedProperty() }
 
+            var propertyNameToProperty: [String: NSPropertyDescription] = [:]
+
+            for attributeDescription in entityDescription.attributes {
+                let attribute = attributeDescription.makeAttribute()
+                propertyNameToProperty[attribute.name] = attribute
+            }
+
+            for fetchedPropertyDescription in entityDescription.fetchedProperties {
+                let fetchedProperty = fetchedPropertyDescription.makeFetchedProperty()
+                propertyNameToProperty[fetchedProperty.name] = fetchedProperty
+            }
+
+            entity.properties = Array(propertyNameToProperty.values)
+
+            // Map the entity to its name
             entityNameToEntity[entityDescription.name] = entity
 
-            if let configuration = entityDescription.configuration {
-                configurationNameToEntities[configuration] = (configurationNameToEntities[configuration] ?? []) + [entity]
+            // Map the entity to its configuration
+            if let configurationName = entityDescription.configuration {
+                var configurationEntities = configurationNameToEntities[configurationName] ?? []
+                configurationEntities.append(entity)
+                configurationNameToEntities[configurationName] = configurationEntities
             }
+
+            // Map properties
+            entityNameToPropertyNameToProperty[entityDescription.name] = propertyNameToProperty
         }
 
         // Second step
         var relationshipsWithInverse: [(CoreDataRelationshipDescription, NSRelationshipDescription)] = []
 
-        for entityDescription in entities {
+        for entityDescription in entitiesDescriptions {
             let entity = entityNameToEntity[entityDescription.name]!
-            
-            // Relationships
-            entity.properties += entityDescription.relationships.map { relationshipDescription in
+
+            var propertyNameToProperty: [String: NSPropertyDescription] = [:]
+
+            for relationshipDescription in entityDescription.relationships {
                 let relationship = NSRelationshipDescription()
                 relationship.name = relationshipDescription.name
                 relationship.maxCount = relationshipDescription.maxCount
@@ -66,8 +94,11 @@ public struct CoreDataModelDescription {
                     relationshipsWithInverse.append((relationshipDescription, relationship))
                 }
 
-                return relationship
+                propertyNameToProperty[relationshipDescription.name] = relationship
             }
+
+            // Relationships
+            entity.properties += Array(propertyNameToProperty.values)
 
             // Parent-child entity
             if let parentName = entityDescription.parentEntity {
@@ -90,9 +121,37 @@ public struct CoreDataModelDescription {
             relationship.inverseRelationship = inverseRelationship
         }
 
+        entities = Array(entityNameToEntity.values)
+
+        // Last step, build indexes
+        for entityDescription in entitiesDescriptions {
+            let entity = entityNameToEntity[entityDescription.name]!
+            let propertyNameToProperty = entityNameToPropertyNameToProperty[entityDescription.name] ?? [:]
+
+            entity.indexes = entityDescription.indexes.map { indexDescription in
+                let elements: [NSFetchIndexElementDescription] = indexDescription.elements.compactMap { elementDescription in
+                    switch elementDescription.property {
+                        case .property(let name):
+                            guard let property = propertyNameToProperty[name] else {
+                                assertionFailure("Can not find attribute, fetched property, or relationship with name: \(name).")
+                                return nil
+                            }
+
+                            return NSFetchIndexElementDescription(property: property, collationType: elementDescription.type)
+
+                        case .expression:
+                            assertionFailure("Expression indexes are not supported yet")
+                            return nil
+                        }
+                    }
+
+                return NSFetchIndexDescription(name: indexDescription.name, elements: elements)
+            }
+        }
+
         // Set entities and configurations
 
-        model.entities = Array(entityNameToEntity.values)
+        model.entities = entities
 
         for (configurationName, entities) in configurationNameToEntities {
             model.setEntities(entities, forConfigurationName: configurationName)
