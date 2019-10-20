@@ -8,7 +8,7 @@
 import CoreData
 
 
-/// Describes and creates`NSAttributeDescription`
+/// Describes and creates`NSFetchedPropertyDescription`
 public struct CoreDataFetchedPropertyDescription {
 
     public static func fetchedProperty(name: String, fetchRequest: NSFetchRequest<NSFetchRequestResult>, isOptional: Bool = false) -> CoreDataFetchedPropertyDescription {
