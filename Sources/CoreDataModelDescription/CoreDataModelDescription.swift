@@ -17,27 +17,31 @@ public struct CoreDataModelDescription {
     public init(entities: [CoreDataEntityDescription]) {
         self.entities = entities
     }
-    
+
     public func makeModel() -> NSManagedObjectModel {
         let model = NSManagedObjectModel()
-                
-        // Model creation is split in four steps:
-        // 1. First step creates all entities and their attributes. Entities are mapped to their names for faster lookup.
+
+        // Model creation is split in three steps:
+        // 1. First step creates all entities and their attributes. Entities are mapped to their names for faster lookup. This step also creates configuration name to entities map.
         // 2. Second step creates relationships and establishes parent-child (sub-super entity) connections. This step produces a list of relationships with inverse (and their descriptions).
         // 3. Third step connects inverse relationships.
-        // 4. Fourth step divides Entites into Groups based on their configuration Name
 
         // First step
-        let entityNameToEntity: [String: NSEntityDescription] = .init(uniqueKeysWithValues: entities.map { entityDescription in
+        var entityNameToEntity: [String: NSEntityDescription] = [:]
+        var configurationNameToEntities: [String: Array<NSEntityDescription>] = [:]
 
+        for entityDescription in entities {
             let entity = NSEntityDescription()
             entity.name = entityDescription.name
-            entity.managedObjectClassName = entityDescription.managedObjectClassName 
+            entity.managedObjectClassName = entityDescription.managedObjectClassName
             entity.properties = entityDescription.attributes.map { $0.makeAttribute() } + entityDescription.fetchedProperties.map { $0.makeFetchedProperty() }
-            
-            
-            return (entityDescription.name, entity)
-        })
+
+            entityNameToEntity[entityDescription.name] = entity
+
+            if let configuration = entityDescription.configuration {
+                configurationNameToEntities[configuration] = (configurationNameToEntities[configuration] ?? []) + [entity]
+            }
+        }
 
         // Second step
         var relationshipsWithInverse: [(CoreDataRelationshipDescription, NSRelationshipDescription)] = []
@@ -85,22 +89,13 @@ public struct CoreDataModelDescription {
 
             relationship.inverseRelationship = inverseRelationship
         }
-        
+
+        // Set entities and configurations
+
         model.entities = Array(entityNameToEntity.values)
-        
-        //Fourth step
-        entities.map { entity -> (String, String) in
-            return (entity.configuration, entity.name)
-        }
-        .compactMap { (configuration, entityName) -> (String, NSEntityDescription)? in
-            guard let entity = entityNameToEntity[entityName] else { return nil }
-            return (configuration, entity)
-        }
-        .associateBy { (configuration, entity) in
-            return (configuration, entity)
-        }
-        .forEach { (configuration, entities) in
-            model.setEntities(entities, forConfigurationName: configuration)
+
+        for (configurationName, entities) in configurationNameToEntities {
+            model.setEntities(entities, forConfigurationName: configurationName)
         }
         
         return model
