@@ -1,6 +1,6 @@
 # CoreDataModelDescription
 
-Declarative way to describe a Core Data model in code.
+Declarative way to describe a Core Data model in code. Swifty Core Data model 🙂
 
 ## Usage
 
