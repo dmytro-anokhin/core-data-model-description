@@ -8,7 +8,7 @@ final class Author: NSManagedObject {
 
     @NSManaged var name: String?
 
-    @NSManaged public var publications: NSSet?
+    @NSManaged public var publications: Set<Publication>?
 }
 
 class Publication: NSManagedObject {
@@ -189,7 +189,84 @@ final class CoreDataModelDescriptionTests: XCTestCase {
 
         try context.save()
     }
-    
+
+    func testCoreDataModelDescriptionWithKeypaths() throws {
+        let modelDescription = CoreDataModelDescription(
+            entities: [
+                .entity(
+                    name: "User",
+                    managedObjectClass: User.self,
+                    parentEntity: nil,
+                    attributes: [
+                        .attribute(name: "email", type: .stringAttributeType)
+                    ],
+                    configuration: "UserData"),
+                .entity(
+                    name: "Author",
+                    managedObjectClass: Author.self,
+                    parentEntity: nil,
+                    attributes: [
+                        .attribute(name: "name", type: .stringAttributeType)
+                    ],
+                    relationships: [
+                        .relationship(\Author.publications, inverse: \Publication.author, deleteRule: .cascadeDeleteRule)
+                    ],
+                    configuration: "News"),
+                .entity(
+                    name: "Publication",
+                    managedObjectClass: Publication.self,
+                    parentEntity: nil,
+                    attributes: [
+                        .attribute(name: "publicationDate", type: .dateAttributeType),
+                        .attribute(name: "numberOfViews", type: .integer64AttributeType, isOptional: true)
+                    ],
+                    relationships: [
+                        .relationship(\Publication.author, inverse: \Author.publications)
+                    ],
+                    configuration: "News"),
+                .entity(
+                    name: "Story",
+                    managedObjectClass: Story.self,
+                    parentEntity: "Publication",
+                    attributes: [
+                        .attribute(name: "videoURL", type: .URIAttributeType)
+                    ],
+                    configuration: "News"),
+                .entity(
+                    name: "Article",
+                    managedObjectClass: Article.self,
+                    parentEntity: "Publication",
+                    attributes: [
+                        .attribute(name: "text", type: .stringAttributeType)
+                    ],
+                    configuration: "News")
+            ]
+        )
+
+        let container = makePersistentContainer(name: "CoreDataModelDescriptionTest", modelDescription: modelDescription, configurations: ["UserData", "News"])
+        let context = container.viewContext
+
+        let user = NSEntityDescription.insertNewObject(forEntityName: "User", into: context) as! User
+        user.email = "john.doe@apple.com"
+
+        let author = NSEntityDescription.insertNewObject(forEntityName: "Author", into: context) as! Author
+        author.name = "John Doe"
+
+        let articleDate = Date()
+        let storyDate = articleDate.addingTimeInterval(60.0)
+
+        let article = NSEntityDescription.insertNewObject(forEntityName: "Article", into: context) as! Article
+        article.publicationDate = articleDate
+        article.text = "This is an article"
+        article.author = author
+
+        let story = NSEntityDescription.insertNewObject(forEntityName: "Story", into: context) as! Story
+        story.publicationDate = storyDate
+        story.videoURL = URL(string: "https://video")
+        story.author = author
+
+        try context.save()
+    }
     
     static var allTests = [
         ("testCoreDataModelDescription", testCoreDataModelDescription),
