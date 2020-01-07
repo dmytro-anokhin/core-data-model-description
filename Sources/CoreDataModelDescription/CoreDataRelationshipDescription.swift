@@ -8,7 +8,6 @@
 
 import CoreData
 
-
 public struct CoreDataRelationshipDescription {
 
     public static func relationship(
@@ -37,4 +36,36 @@ public struct CoreDataRelationshipDescription {
     public var deleteRule: NSDeleteRule
 
     public var inverse: String?
+}
+
+extension CoreDataRelationshipDescription {
+
+    /// create a relationship from an NSManagedObject KeyPath, the inverse relationship another NSManagedObject KeyPath, and given delete rule
+    public static func relationship<Root, Value, InverseRoot, InverseValue>(_ keyPath: KeyPath<Root, Value>, inverse: KeyPath<InverseRoot, InverseValue>, deleteRule: NSDeleteRule = .nullifyDeleteRule) -> CoreDataRelationshipDescription where Root: NSManagedObject, InverseRoot: NSManagedObject {
+        assert(keyPath.destinationType is NSManagedObject.Type)
+        assert(inverse.destinationType is NSManagedObject.Type)
+
+        return relationship(
+            name: keyPath.stringValue,
+            destination: "\(keyPath.destinationType)",
+            optional: keyPath.isOptional,
+            toMany: keyPath.isToMany,
+            deleteRule: deleteRule,
+            inverse: inverse.stringValue
+        )
+    }
+
+    /// create a relationship from an NSManagedObject KeyPath and given delete rule
+    public static func relationship<Root, Value>(_ keyPath: KeyPath<Root, Value>, deleteRule: NSDeleteRule = .nullifyDeleteRule) -> CoreDataRelationshipDescription where Root: NSManagedObject {
+        assert(keyPath.destinationType is NSManagedObject.Type)
+
+        return relationship(
+            name: keyPath.stringValue,
+            destination: "\(keyPath.destinationType)",
+            optional: keyPath.isOptional,
+            toMany: keyPath.isToMany,
+            deleteRule: deleteRule,
+            inverse: nil
+        )
+    }
 }
