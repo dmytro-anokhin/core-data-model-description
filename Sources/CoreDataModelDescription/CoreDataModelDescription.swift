@@ -41,6 +41,7 @@ public struct CoreDataModelDescription {
             let entity = NSEntityDescription()
             entity.name = entityDescription.name
             entity.managedObjectClassName = entityDescription.managedObjectClassName
+            entity.isAbstract = entityDescription.isAbstract
 
             var propertyNameToProperty: [String: NSPropertyDescription] = [:]
 

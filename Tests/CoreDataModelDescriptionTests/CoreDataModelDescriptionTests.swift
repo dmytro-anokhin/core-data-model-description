@@ -267,6 +267,27 @@ final class CoreDataModelDescriptionTests: XCTestCase {
 
         try context.save()
     }
+
+    func testAbstractEntity() {
+        class Abstract: NSManagedObject {
+            @NSManaged var name: String
+        }
+
+        final class Concrete: Abstract {
+            @NSManaged var id: Int
+        }
+
+        let modelDescription = CoreDataModelDescription(entities: [
+            .entity(name: "Abstract", managedObjectClass: Abstract.self, isAbstract: true, attributes: [.attribute(name: "name", type: .stringAttributeType)]),
+            .entity(name: "Concrete", managedObjectClass: Concrete.self, parentEntity: "Abstract", attributes: [.attribute(name: "id", type: .integer64AttributeType)])
+        ])
+
+        let container = makePersistentContainer(name: "CoreDataModelDescriptionTest", modelDescription: modelDescription)
+        let context = container.viewContext
+
+        let abstractEntityDescription = NSEntityDescription.entity(forEntityName: "Abstract", in: context)
+        XCTAssert(abstractEntityDescription?.isAbstract == true, "Entity is not marked as abstract in entity model")
+    }
     
     static var allTests = [
         ("testCoreDataModelDescription", testCoreDataModelDescription),
