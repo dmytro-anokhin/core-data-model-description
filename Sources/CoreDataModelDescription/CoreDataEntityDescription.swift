@@ -16,12 +16,13 @@ public struct CoreDataEntityDescription {
     public static func entity(name: String,
                               managedObjectClass: NSManagedObject.Type = NSManagedObject.self,
                               parentEntity: String? = nil,
+                              isAbstract: Bool = false,
                               attributes: [CoreDataAttributeDescription] = [],
                               fetchedProperties: [CoreDataFetchedPropertyDescription] = [],
                               relationships: [CoreDataRelationshipDescription] = [],
                               indexes: [CoreDataFetchIndexDescription] = [],
                               configuration: String? = nil) -> CoreDataEntityDescription {
-        CoreDataEntityDescription(name: name, managedObjectClassName: NSStringFromClass(managedObjectClass), parentEntity: parentEntity, attributes: attributes, fetchedProperties: fetchedProperties, relationships: relationships, indexes: indexes, configuration: configuration)
+        CoreDataEntityDescription(name: name, managedObjectClassName: NSStringFromClass(managedObjectClass), parentEntity: parentEntity, isAbstract: isAbstract, attributes: attributes, fetchedProperties: fetchedProperties, relationships: relationships, indexes: indexes, configuration: configuration)
     }
 
     public var name: String
@@ -29,6 +30,8 @@ public struct CoreDataEntityDescription {
     public var managedObjectClassName: String
 
     public var parentEntity: String?
+
+    public var isAbstract: Bool
 
     public var attributes: [CoreDataAttributeDescription]
     
