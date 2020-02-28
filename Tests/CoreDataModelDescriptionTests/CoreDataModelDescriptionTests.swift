@@ -122,6 +122,9 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                     attributes: [
                         .attribute(name: "email", type: .stringAttributeType)
                     ],
+                    constraints: [
+                        "email"
+                    ],
                     configuration: "UserData"),
                 .entity(
                     name: "Author",
@@ -186,8 +189,20 @@ final class CoreDataModelDescriptionTests: XCTestCase {
         story.publicationDate = storyDate
         story.videoURL = URL(string: "https://video")
         story.author = author
+        
+        let duplicatedUser = NSEntityDescription.insertNewObject(forEntityName: "User", into: context) as! User
+        duplicatedUser.email = "john.doe@apple.com"
 
-        try context.save()
+        
+        XCTAssertThrowsError(try context.save())
+
+        let request = NSFetchRequest<User>(entityName: "User")
+        XCTAssertEqual(try context.count(for: request), 2)
+        
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
+        XCTAssertNoThrow(try context.save())
+        XCTAssertEqual(try context.count(for: request), 1)
     }
 
     func testCoreDataModelDescriptionWithKeypaths() throws {

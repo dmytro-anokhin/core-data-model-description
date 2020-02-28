@@ -21,10 +21,11 @@ public struct CoreDataEntityDescription {
                               fetchedProperties: [CoreDataFetchedPropertyDescription] = [],
                               relationships: [CoreDataRelationshipDescription] = [],
                               indexes: [CoreDataFetchIndexDescription] = [],
+                              constraints: [Any] = [],
                               configuration: String? = nil) -> CoreDataEntityDescription {
-        CoreDataEntityDescription(name: name, managedObjectClassName: NSStringFromClass(managedObjectClass), parentEntity: parentEntity, isAbstract: isAbstract, attributes: attributes, fetchedProperties: fetchedProperties, relationships: relationships, indexes: indexes, configuration: configuration)
+        CoreDataEntityDescription(name: name, managedObjectClassName: NSStringFromClass(managedObjectClass), parentEntity: parentEntity, isAbstract: isAbstract, attributes: attributes, fetchedProperties: fetchedProperties, relationships: relationships, indexes: indexes, constraints: constraints, configuration: configuration)
     }
-
+    
     public var name: String
 
     public var managedObjectClassName: String
@@ -40,6 +41,8 @@ public struct CoreDataEntityDescription {
     public var relationships: [CoreDataRelationshipDescription]
 
     public var indexes: [CoreDataFetchIndexDescription]
+
+    public var constraints: [Any]
 
     public var configuration: String?
 }

@@ -56,6 +56,7 @@ public struct CoreDataModelDescription {
             }
 
             entity.properties = Array(propertyNameToProperty.values)
+            entity.uniquenessConstraints = [entityDescription.constraints]
 
             // Map the entity to its name
             entityNameToEntity[entityDescription.name] = entity
