@@ -10,7 +10,7 @@ import CoreData
 
 
 /// Describes and creates `NSEntityDescription`
-@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
+@available(iOS 11.0, tvOS 11.0, macOS 10.13, watchOS 4.0, *)
 public struct CoreDataEntityDescription {
 
     public static func entity(name: String,
