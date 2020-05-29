@@ -24,7 +24,7 @@ public struct CoreDataModelDescription {
     }
 }
 
-extension NSManagedObjectModel {
+public extension NSManagedObjectModel {
     convenience init(modelDescription: CoreDataModelDescription) {
         self.init()
 
