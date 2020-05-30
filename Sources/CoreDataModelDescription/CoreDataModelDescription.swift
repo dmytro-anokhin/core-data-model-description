@@ -10,7 +10,7 @@ import CoreData
 
 
 /// Used to create `NSManagedObjectModel`
-@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
+@available(iOS 11.0, tvOS 11.0, macOS 10.13, watchOS 4.0, *)
 public struct CoreDataModelDescription {
 
     public var entities: [CoreDataEntityDescription]
@@ -20,10 +20,16 @@ public struct CoreDataModelDescription {
     }
 
     public func makeModel() -> NSManagedObjectModel {
-        let model = NSManagedObjectModel()
+        return NSManagedObjectModel(modelDescription: self)
+    }
+}
+
+public extension NSManagedObjectModel {
+    convenience init(modelDescription: CoreDataModelDescription) {
+        self.init()
 
         // For convenience: the package objects use "Description" suffix, Core Data objects have no suffix.
-        let entitiesDescriptions = self.entities
+        let entitiesDescriptions = modelDescription.entities
         let entities: [NSEntityDescription]
 
         // Model creation has next steps:
@@ -153,12 +159,10 @@ public struct CoreDataModelDescription {
 
         // Set entities and configurations
 
-        model.entities = entities
+        self.entities = entities
 
         for (configurationName, entities) in configurationNameToEntities {
-            model.setEntities(entities, forConfigurationName: configurationName)
+            self.setEntities(entities, forConfigurationName: configurationName)
         }
-        
-        return model
     }
 }
