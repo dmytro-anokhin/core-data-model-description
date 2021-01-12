@@ -4,6 +4,12 @@ import CoreData
 
 // MARK: - Core Data Managed Objects
 
+final class Publisher: NSManagedObject {
+
+    @NSManaged var name: String?
+
+}
+
 final class Author: NSManagedObject {
 
     @NSManaged var name: String?
@@ -18,6 +24,8 @@ class Publication: NSManagedObject {
     @NSManaged var numberOfViews: Int64
 
     @NSManaged var author: Author?
+    
+    @NSManaged var publisherHouse: Publisher?
 }
 
 final class Story: Publication {
@@ -42,6 +50,23 @@ final class User: NSManagedObject {
 final class CoreDataModelDescriptionTests: XCTestCase {
 
     func testCoreDataModelDescription() throws {
+        
+        let baseModelDescription = CoreDataModelDescription(
+            entities: [
+                .entity(
+                    name: "Publisher",
+                    managedObjectClass: Publisher.self,
+                    parentEntity: nil,
+                    attributes: [
+                        .attribute(name: "name", type: .stringAttributeType)
+                    ],
+                    relationships: [
+                    ],
+                    indexes: [
+                        .index(name: "byName", elements: [ .property(name: "name") ])
+                    ])
+            ]
+        )
 
         let modelDescription = CoreDataModelDescription(
             entities: [
@@ -67,7 +92,8 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                         .attribute(name: "numberOfViews", type: .integer64AttributeType, isOptional: true)
                     ],
                     relationships: [
-                        .relationship(name: "author", destination: "Author", toMany: false, inverse: "publications")
+                        .relationship(name: "author", destination: "Author", toMany: false, inverse: "publications"),
+                        .relationship(name: "publisherHouse", destination: "Publisher", toMany: false)
                     ]),
                 .entity(
                     name: "Story",
@@ -86,9 +112,12 @@ final class CoreDataModelDescriptionTests: XCTestCase {
             ]
         )
 
-        let container = makePersistentContainer(name: "CoreDataModelDescriptionTest", modelDescription: modelDescription)
+        let container = makePersistentContainer(name: "CoreDataModelDescriptionTest", baseModelDescription: baseModelDescription, modelDescription: modelDescription)
         let context = container.viewContext
 
+        let publisher = NSEntityDescription.insertNewObject(forEntityName: "Publisher", into: context) as! Publisher
+        publisher.name = "Great House"
+        
         let author = NSEntityDescription.insertNewObject(forEntityName: "Author", into: context) as! Author
         author.name = "John Doe"
 
@@ -99,6 +128,7 @@ final class CoreDataModelDescriptionTests: XCTestCase {
         article.publicationDate = articleDate
         article.text = "This is an article"
         article.author = author
+        article.publisherHouse = publisher
 
         let story = NSEntityDescription.insertNewObject(forEntityName: "Story", into: context) as! Story
         story.publicationDate = storyDate
@@ -314,8 +344,14 @@ final class CoreDataModelDescriptionTests: XCTestCase {
 @available(iOS 11.0, tvOS 11.0, macOS 10.13, *)
 extension XCTestCase {
 
-    func makePersistentContainer(name: String, modelDescription: CoreDataModelDescription, configurations: [String]? = nil) -> NSPersistentContainer {
-        let model = modelDescription.makeModel()
+    func makePersistentContainer(name: String, baseModelDescription: CoreDataModelDescription?=nil, modelDescription: CoreDataModelDescription, configurations: [String]? = nil) -> NSPersistentContainer {
+
+        var model:NSManagedObjectModel
+        if baseModelDescription == nil {
+            model = modelDescription.makeModel()
+        } else {
+            model = modelDescription.makeModel(byMerging: baseModelDescription!.makeModel())
+        }
 
         let persistentContainer = NSPersistentContainer(name: name, managedObjectModel: model)
         

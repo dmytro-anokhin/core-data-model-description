@@ -19,8 +19,7 @@ public struct CoreDataModelDescription {
         self.entities = entities
     }
 
-    public func makeModel() -> NSManagedObjectModel {
-        let model = NSManagedObjectModel()
+    public func makeModel(byMerging model: NSManagedObjectModel=NSManagedObjectModel()) -> NSManagedObjectModel {
 
         // For convenience: the package objects use "Description" suffix, Core Data objects have no suffix.
         let entitiesDescriptions = self.entities
@@ -88,7 +87,10 @@ public struct CoreDataModelDescription {
                 relationship.deleteRule = relationshipDescription.deleteRule
                 relationship.isOptional = relationshipDescription.optional
 
-                let destinationEntity = entityNameToEntity[relationshipDescription.destination]
+                var destinationEntity = entityNameToEntity[relationshipDescription.destination]
+                if destinationEntity == nil {
+                    destinationEntity = model.entitiesByName[relationshipDescription.destination]
+                }
                 assert(destinationEntity != nil, "Can not find destination entity: '\(relationshipDescription.destination)', in relationship '\(relationshipDescription.name)', for entity: '\(entityDescription.name)'")
                 relationship.destinationEntity = destinationEntity
 
@@ -151,9 +153,9 @@ public struct CoreDataModelDescription {
             }
         }
 
-        // Set entities and configurations
+        // Append new entities and set their configurations
 
-        model.entities = entities
+        model.entities.append(contentsOf: entities)
 
         for (configurationName, entities) in configurationNameToEntities {
             model.setEntities(entities, forConfigurationName: configurationName)
