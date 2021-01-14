@@ -19,7 +19,7 @@ public struct CoreDataModelDescription {
         self.entities = entities
     }
 
-    public func makeModel(byMerging model: NSManagedObjectModel=NSManagedObjectModel()) -> NSManagedObjectModel {
+    public func makeModel(byMerging model: NSManagedObjectModel = NSManagedObjectModel()) -> NSManagedObjectModel {
 
         // For convenience: the package objects use "Description" suffix, Core Data objects have no suffix.
         let entitiesDescriptions = self.entities
