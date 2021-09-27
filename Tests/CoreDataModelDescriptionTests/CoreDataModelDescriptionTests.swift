@@ -94,6 +94,10 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                     relationships: [
                         .relationship(name: "author", destination: "Author", toMany: false, inverse: "publications"),
                         .relationship(name: "publisherHouse", destination: "Publisher", toMany: false)
+                    ],
+                    indexes: [
+                        .index(name: "byAuthor", elements: [ .property(name: "author") ]),
+                        .index(name: "byAuthorByPublicationDate", elements: [ .property(name: "publicationDate") ]),
                     ]),
                 .entity(
                     name: "Story",
@@ -177,6 +181,10 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                     ],
                     relationships: [
                         .relationship(name: "author", destination: "Author", toMany: false, inverse: "publications")
+                    ],
+                    indexes: [
+                        .index(name: "byAuthor", elements: [ .property(name: "author") ]),
+                        .index(name: "byAuthorByPublicationDate", elements: [ .property(name: "publicationDate") ]),
                     ],
                     configuration: "News"),
                 .entity(
@@ -267,6 +275,10 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                     ],
                     relationships: [
                         .relationship(\Publication.author, inverse: \Author.publications)
+                    ],
+                    indexes: [
+                        .index(name: "byAuthor", elements: [ .property(name: "author") ]),
+                        .index(name: "byAuthorByPublicationDate", elements: [ .property(name: "publicationDate") ]),
                     ],
                     configuration: "News"),
                 .entity(
