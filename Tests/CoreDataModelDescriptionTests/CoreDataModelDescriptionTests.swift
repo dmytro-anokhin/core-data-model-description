@@ -164,7 +164,7 @@ final class CoreDataModelDescriptionTests: XCTestCase {
                         .attribute(name: "name", type: .stringAttributeType)
                     ],
                     relationships: [
-                        .relationship(name: "publications", destination: "Publication", toMany: true, deleteRule: .cascadeDeleteRule, inverse: "author")
+                        .relationship(name: "publications", destination: "Publication", toMany: true, deleteRule: .cascadeDeleteRule, inverse: "author", ordered: true)
                     ],
                     configuration: "News"),
                 .entity(

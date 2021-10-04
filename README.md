@@ -20,7 +20,7 @@ let modelDescription = CoreDataModelDescription(
                 .attribute(name: "name", type: .stringAttributeType)
             ],
             relationships: [
-                .relationship(name: "publications", destination: "Publication", toMany: true, deleteRule: .cascadeDeleteRule, inverse: "author")
+                .relationship(name: "publications", destination: "Publication", toMany: true, deleteRule: .cascadeDeleteRule, inverse: "author", ordered: true)
             ]),
         .entity(
             name: "Publication",
