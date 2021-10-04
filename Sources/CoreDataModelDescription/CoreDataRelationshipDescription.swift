@@ -16,11 +16,12 @@ public struct CoreDataRelationshipDescription {
            optional: Bool = true,
              toMany: Bool = false,
          deleteRule: NSDeleteRule = .nullifyDeleteRule,
-            inverse: String? = nil) -> CoreDataRelationshipDescription {
+            inverse: String? = nil,
+            ordered: Bool = false) -> CoreDataRelationshipDescription {
 
         let maxCount = toMany ? 0 : 1
 
-        return CoreDataRelationshipDescription(name: name, destination: destination, optional: optional, maxCount: maxCount, minCount: 0, deleteRule: deleteRule, inverse: inverse)
+                return CoreDataRelationshipDescription(name: name, destination: destination, optional: optional, maxCount: maxCount, minCount: 0, deleteRule: deleteRule, inverse: inverse, ordered: ordered)
     }
 
     public var name: String
@@ -36,6 +37,8 @@ public struct CoreDataRelationshipDescription {
     public var deleteRule: NSDeleteRule
 
     public var inverse: String?
+
+    public var ordered: Bool
 }
 
 extension CoreDataRelationshipDescription {
