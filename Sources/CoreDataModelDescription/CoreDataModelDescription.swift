@@ -84,6 +84,7 @@ public struct CoreDataModelDescription {
                 relationship.name = relationshipDescription.name
                 relationship.maxCount = relationshipDescription.maxCount
                 relationship.minCount = relationshipDescription.minCount
+                relationship.isOrdered = relationshipDescription.ordered
                 relationship.deleteRule = relationshipDescription.deleteRule
                 relationship.isOptional = relationshipDescription.optional
 
