@@ -99,6 +99,7 @@ public struct CoreDataModelDescription {
                 }
 
                 propertyNameToProperty[relationshipDescription.name] = relationship
+                entityNameToPropertyNameToProperty[entityDescription.name]![relationshipDescription.name] = relationship
             }
 
             // Relationships
